@@ -50,4 +50,62 @@ void main(List<String> arguments) {
     // How to cast an Integer?
   }
   print(months);
+
+  // Functions
+  var result = fibonacci(7);
+  print('fibonacci result = ${result}');
+
+  var flybyObjects = ['leftturn', 'flying', 'take-off', 'rightturn', 'landing'];
+  flybyObjects.where((name) => name.contains('turn')).forEach(print);
+
+  // Classes
+  var voyager = Spacecraft('Voyager I', DateTime(1977, 9, 5));
+  var voyager2 = Spacecraft.unlaunched('cremazer');
+  print(voyager.name);
+  print(voyager.launchDate);
+
+  print(voyager2.name);
+  print(voyager2.launchDate);
+  voyager2.describe();
+  voyager2.launchDate = DateTime(1977, 9, 5);
+  print('voyager2 launchYear = ${voyager2.launchYear}');
+  // call method
+  voyager2.describe();
+
+  var voyager3 = Spacecraft.unlaunched('Voyager III');
+  voyager3.describe();
+}
+
+/*
+  피보나치 수열
+  n 번째 숫자 구하기
+*/
+int fibonacci(int n) {
+  // print(' -> ${n}');
+  if (n == 0 || n == 1) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+class Spacecraft {
+  String name;
+  DateTime launchDate;
+
+  // 기본생성자
+  Spacecraft.unlaunched(String name) : this(name, null);
+
+  Spacecraft(this.name, this.launchDate);
+
+  // read-only non-final property
+  int get launchYear => launchDate?.year;
+
+  // Method.
+  void describe() {
+    print('Spacecraft: $name');
+    if (launchDate != null) {
+      int years = DateTime.now().difference(launchDate).inDays ~/ 365;
+      print('Launched: $launchYear ($years years ago)');
+    } else {
+      print('Unlaunched');
+    }
+  }
 }
