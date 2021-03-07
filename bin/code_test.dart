@@ -1,5 +1,11 @@
+import 'dart:io';
+
 import 'package:code_test/code_test.dart' as code_test;
 
+/**
+ * 2021.03.07
+ * Reference https://dart.dev/samples
+ */
 void main(List<String> arguments) {
   print('Hello world: ${code_test.calculate()}!');
 
@@ -74,6 +80,29 @@ void main(List<String> arguments) {
 
   var voyager3 = Spacecraft.unlaunched('Voyager III');
   voyager3.describe();
+
+  // 상속 Inheritance
+  var orbiter1 = Orbiter('KITSAT-I', DateTime(1992, 8, 11), 2000);
+  print(orbiter1.name);
+  print(orbiter1.launchDate);
+  orbiter1.describe();
+
+  // mixin
+  var pilotedCraft = PilotedCraft('KITSAT-II', DateTime(1993, 9, 26));
+  print(pilotedCraft.name);
+  print(pilotedCraft.launchDate);
+  pilotedCraft.describe();
+  pilotedCraft.describeCrew();
+
+  // Async
+  // 1초 뒤 출력하기
+  printWithDelay('ok google');
+
+  Iterable<String> objects = ['First', 'Second', 'Third'];
+  report(pilotedCraft, objects);
+
+  // Exceptions
+  testException(objects);
 }
 
 /*
@@ -86,6 +115,9 @@ int fibonacci(int n) {
   return fibonacci(n - 1) + fibonacci(n - 2);
 }
 
+/**
+ * 우주선
+ */
 class Spacecraft {
   String name;
   DateTime launchDate;
@@ -107,5 +139,72 @@ class Spacecraft {
     } else {
       print('Unlaunched');
     }
+  }
+}
+
+/**
+ * 인공위성
+ */
+class Orbiter extends Spacecraft {
+  // 고도
+  double altitude;
+  Orbiter(String name, DateTime launchDate, this.altitude)
+      : super(name, launchDate);
+
+  // Method.
+  void describe() {
+    print('Orbiter: $name');
+    if (launchDate != null) {
+      int years = DateTime.now().difference(launchDate).inDays ~/ 365;
+      print('Launched: $launchYear ($years years ago)');
+      print('Altitude: $altitude km');
+    } else {
+      print('Unlaunched');
+    }
+  }
+}
+
+/**
+ * 파일럿
+ */
+mixin Piloted {
+  // 우주 비행사
+  int astronauts = 1;
+  void describeCrew() {
+    print('Number of astronauts: $astronauts');
+  }
+}
+
+class PilotedCraft extends Spacecraft with Piloted {
+  PilotedCraft(String name, DateTime launchDate) : super(name, launchDate);
+}
+
+const oneSecond = Duration(seconds: 1);
+Future<void> printWithDelay(String message) async {
+  await Future.delayed(oneSecond);
+  print(message);
+}
+
+Stream<String> report(Spacecraft craft, Iterable<String> objects) async* {
+  for (var object in objects) {
+    await Future.delayed(oneSecond);
+    yield '${craft.name} flies by $object'; // ?
+    /*
+    What does 'yield' keyword do in flutter?
+    https://stackoverflow.com/questions/55776041/what-does-yield-keyword-do-in-flutter
+    */
+  }
+}
+
+Future<void> testException(var flybyObjects) async {
+  try {
+    for (var object in flybyObjects) {
+      var description = await File('$object.txt').readAsString();
+      print(description);
+    }
+  } on IOException catch (e) {
+    print('Could not describe object: $e');
+  } finally {
+    flybyObjects.clear();
   }
 }
